@@ -1,0 +1,14 @@
+---
+
+- hosts: all
+  become: true
+  tasks:
+
+  - name: "Update repository, Install apache/php packge using package module"
+    package:
+     name: 
+      - "{{ apache_pkg }}"
+      - "{{ php_pkg }}"
+     state: latest
+     update_cache: yes
+
