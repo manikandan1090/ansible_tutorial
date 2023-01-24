@@ -2,19 +2,40 @@
 
 - hosts: all
   become: true
+  vars:
+   packages_redhat:
+    - httpd
+    - php
+    - firewalld
+
   tasks:
 
   - name: Update repository
     apt:
       update_cache: yes
+    when: ansible_distribution in ["Ubuntu","Debian"]
 
   - name: Install apache packge
     apt:
      name: apache2
      state: latest
+    when: ansible_distribution == "Ubuntu"
 
   - name: Install php support for apache
     apt:
      name: libapache2-mod-php
      state: latest
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Update RedHat repository
+    dnf:
+      update_cache: yes
+    when: ansible_distribution == "RedHat"
+
+  - name: "Install apache/php/firewalld packge"
+    dnf:
+     name: "{{ item }}"
+     state: latest
+    with_items: "{{ packages_redhat }}"
+    when: ansible_distribution == "RedHat"
 
