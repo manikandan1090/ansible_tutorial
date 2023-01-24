@@ -1,0 +1,59 @@
+---
+
+- hosts: all
+  become: true
+  vars:
+   packages_redhat:
+    - httpd
+    - php
+    - firewalld
+
+  pre_tasks:
+  - name: "Intall updates (RedHat)"
+    dnf:
+     update_only: yes
+     update_cache: yes
+    when: ansible_distribution == "RedHat"
+
+  - name: "Install updates (Ubuntu)"
+    apt:
+     upgrade: dist
+     update_cache: yes
+    when: ansible_distribution == "Ubuntu"
+
+
+- hosts: web_servers
+  become: true
+  vars:
+   packages_redhat:
+    - httpd
+    - php
+    - firewalld
+
+  tasks:
+ 
+  - name: "Update repository, Install apache/php packge"
+    apt:
+     name: 
+      - apache2
+      - libapache2-mod-php
+     state: latest
+    when: ansible_distribution == "Ubuntu"
+
+  - name: "Update reposirory, Install apache/php/firewalld packge"
+    dnf:
+     name: "{{ item }}"
+     state: latest
+    with_items: "{{ packages_redhat }}"
+    when: ansible_distribution == "RedHat"
+
+- hosts: db_servers
+  become: true
+  tasks:
+
+  - name: install mariadb serer
+    apt:
+     name: mariadb-server
+     state: latest
+    when: ansible_distribution == "Ubuntu"
+
